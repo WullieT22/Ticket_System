@@ -157,6 +157,8 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 <div>BM-Westfield: BMW1234</div>
                 <div>Cleanroom-Burnhouse: CRB1234</div>
                 <div>Cleanroom-Westfield: CRW1234</div>
+                <div>R&D: RD1234</div>
+                <div>Technical: TECH1234</div>
               </div>
             </div>
           </div>

@@ -113,6 +113,22 @@ const mockUsers: AuthUser[] = [
     role: 'operator',
     department: 'Cleanroom-Westfield',
     avatar: '🧫'
+  },
+  {
+    id: 'rd',
+    email: 'rd@company.com',
+    name: 'R&D',
+    role: 'operator',
+    department: 'R&D',
+    avatar: '🧫'
+  },
+  {
+    id: 'technical',
+    email: 'technical@company.com',
+    name: 'Technical',
+    role: 'operator',
+    department: 'Technical',
+    avatar: '🧫'
   }
 ]
 
@@ -130,7 +146,9 @@ const departmentCredentials: Record<string, string> = {
   'BM-Burnhouse': 'BMB1234',
   'BM-Westfield': 'BMW1234',
   'Cleanroom-Burnhouse': 'CRB1234',
-  'Cleanroom-Westfield': 'CRW1234'
+  'Cleanroom-Westfield': 'CRW1234',
+  'R&D': 'RD1234',
+  'Technical': 'TECH1234'
 }
 
 class AuthService {

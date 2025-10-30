@@ -36,11 +36,15 @@
  ✓ Compiled in 65ms (469 modules)
  ✓ Compiled in 71ms (469 modules)
  GET /dashboard 200 in 82ms
-ompiled in 128ms (483 modules)
- ✓ Compiled / in 13ms (237 modules)
- GET /?id=85c5ac3a-5227-4159-bc07-9353f39fab55&vscodeBrowserReqId=1761857498375 200 in 57ms
- ✓ Compiled in 75ms (488 modules)
-<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from /Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development.pack.gz: Error: invalid stored block lengths
+ GET /dashboard 200 in 31ms
+ ✓ Compiled in 85ms (469 modules)
+ ✓ Compiled in 63ms (469 modules)
+ ✓ Compiled in 132ms (483 modules)
+ ✓ Compiled in 86ms (483 modules)
+ ✓ Compiled in 138ms (483 modules)
+ GET /dashboard 200 in 63ms
+ ✓ Compiled / in 71ms (237 modules)
+r/Desktop/Ticket_System/.next/cache/webpack/server-development.pack.gz: Error: invalid stored block lengths
  ✓ Compiled in 75ms (483 modules)
  ✓ Compiled in 35ms (469 modules)
  ✓ Compiled in 41ms (469 modules)

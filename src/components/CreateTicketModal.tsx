@@ -173,6 +173,24 @@ export default function CreateTicketModal({ isOpen, onClose, onTicketCreated }: 
         'Safety Procedures',
         'Documentation',
         'Other'
+      ],
+      'R&D': [
+        'Research Projects',
+        'Laboratory Equipment',
+        'Data Analysis',
+        'Documentation',
+        'Safety Protocols',
+        'Testing Procedures',
+        'Other'
+      ],
+      'Technical': [
+        'Technical Support',
+        'Hardware Issues',
+        'Software Problems',
+        'Network Connectivity',
+        'System Maintenance',
+        'Documentation',
+        'Other'
       ]
     }
     
