@@ -1,0 +1,60 @@
+
+> it-ticket-system@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:3001
+
+ ✓ Starting...
+ ✓ Ready in 1224ms
+ ✓ Compiled / in 480ms (467 modules)
+ GET / 200 in 577ms
+ ✓ Compiled in 56ms (242 modules)
+ ✓ Compiled /dashboard in 100ms (474 modules)
+ ✓ Compiled in 144ms (483 modules)
+ ✓ Compiled in 93ms (483 modules)
+ GET /dashboard 200 in 60ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development/3.pack.gz_' -> '/Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development/3.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from /Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development.pack.gz: Error: invalid stored block lengths
+ ✓ Compiled in 120ms (483 modules)
+ ✓ Compiled in 62ms (469 modules)
+ ✓ Compiled in 68ms (469 modules)
+ ✓ Compiled in 61ms (469 modules)
+ ✓ Compiled in 68ms (469 modules)
+ ✓ Compiled in 78ms (469 modules)
+ ✓ Compiled in 61ms (469 modules)
+ ✓ Compiled in 62ms (469 modules)
+ ✓ Compiled in 64ms (469 modules)
+ ✓ Compiled in 61ms (469 modules)
+ ✓ Compiled in 71ms (469 modules)
+ ✓ Compiled in 54ms (469 modules)
+ ✓ Compiled in 56ms (469 modules)
+ GET /dashboard 200 in 84ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/user/Desktop/Ticket_System/.next/cache/webpack/client-development/2.pack.gz_' -> '/Users/user/Desktop/Ticket_System/.next/cache/webpack/client-development/2.pack.gz'
+ GET /dashboard 200 in 25ms
+ ✓ Compiled in 65ms (469 modules)
+ ✓ Compiled in 71ms (469 modules)
+ GET /dashboard 200 in 82ms
+ompiled in 128ms (483 modules)
+ ✓ Compiled / in 13ms (237 modules)
+ GET /?id=85c5ac3a-5227-4159-bc07-9353f39fab55&vscodeBrowserReqId=1761857498375 200 in 57ms
+ ✓ Compiled in 75ms (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from /Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development.pack.gz: Error: invalid stored block lengths
+ ✓ Compiled in 75ms (483 modules)
+ ✓ Compiled in 35ms (469 modules)
+ ✓ Compiled in 41ms (469 modules)
+ ✓ Compiled in 35ms (469 modules)
+ ✓ Compiled in 35ms (469 modules)
+ ✓ Compiled in 37ms (469 modules)
+ ✓ Compiled in 32ms (469 modules)
+ ✓ Compiled in 40ms (469 modules)
+ ✓ Compiled in 36ms (469 modules)
+ ✓ Compiled in 46ms (469 modules)
+ ✓ Compiled in 34ms (469 modules)
+ ✓ Compiled in 32ms (469 modules)
+ ✓ Compiled / in 45ms (237 modules)
+ GET /?id=d6762e0d-a61b-4502-9de6-164597854b1c&vscodeBrowserReqId=1761857764067 200 in 85ms
+ ✓ Compiled in 50ms (474 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development/0.pack.gz_' -> '/Users/user/Desktop/Ticket_System/.next/cache/webpack/server-development/0.pack.gz'
+[?25h
