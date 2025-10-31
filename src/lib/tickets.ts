@@ -276,7 +276,50 @@ class TicketService {
 
   // Get total notification count for admin bell
   getNotificationCount(): number {
-    return this.getNewTicketCount() + this.getUnassignedTicketCount()
+    const twentyFourHoursAgo = new Date()
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
+    
+    // Count tickets that need attention (avoid double counting)
+    const ticketsNeedingAttention = this.tickets.filter(t => {
+      // Must be open or in-progress
+      const isActiveStatus = t.status === 'open' || t.status === 'in-progress'
+      if (!isActiveStatus) return false
+      
+      // Either newly created (last 24h) OR unassigned, but count each ticket only once
+      const isNew = t.createdAt > twentyFourHoursAgo
+      const isUnassigned = !t.assignedTechnician
+      
+      return isNew || isUnassigned
+    })
+    
+    return ticketsNeedingAttention.length
+  }
+
+  // Debug method to see exactly which tickets are being counted for notifications
+  getNotificationDetails(): { count: number, tickets: { id: string, title: string, status: string, assignedTechnician?: string, createdAt: Date }[] } {
+    const twentyFourHoursAgo = new Date()
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
+    
+    const ticketsNeedingAttention = this.tickets.filter(t => {
+      const isActiveStatus = t.status === 'open' || t.status === 'in-progress'
+      if (!isActiveStatus) return false
+      
+      const isNew = t.createdAt > twentyFourHoursAgo
+      const isUnassigned = !t.assignedTechnician
+      
+      return isNew || isUnassigned
+    })
+    
+    return {
+      count: ticketsNeedingAttention.length,
+      tickets: ticketsNeedingAttention.map(t => ({
+        id: t.id,
+        title: t.title,
+        status: t.status,
+        assignedTechnician: t.assignedTechnician,
+        createdAt: t.createdAt
+      }))
+    }
   }
 }
 

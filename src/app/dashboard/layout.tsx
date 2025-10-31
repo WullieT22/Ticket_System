@@ -28,20 +28,20 @@ export default function DashboardLayout({
     if (user?.role === 'administrator') {
       const checkNotifications = () => {
         // Use the new notification count method
-        const notificationCount = ticketService.getNotificationCount()
-        setNewTicketsCount(notificationCount)
+        const notificationDetails = ticketService.getNotificationDetails()
+        setNewTicketsCount(notificationDetails.count)
         
         // Log notification details for administrators
-        if (notificationCount > 0) {
-          const newTickets = ticketService.getNewTicketCount()
-          const unassigned = ticketService.getUnassignedTicketCount()
-          const stats = ticketService.getTicketStats()
-          
-          console.log(`🔔 Admin Notification:`)
-          console.log(`  New Tickets (24h): ${newTickets}`)
-          console.log(`  Unassigned Tickets: ${unassigned}`)
-          console.log(`  Total Notification Count: ${notificationCount}`)
-          console.log(`  Technician Breakdown:`, stats.technicianBreakdown)
+        if (notificationDetails.count > 0) {
+          console.log(`🔔 Admin Notification Details:`)
+          console.log(`  Total Count: ${notificationDetails.count}`)
+          console.log(`  Tickets needing attention:`)
+          notificationDetails.tickets.forEach(ticket => {
+            const reason = !ticket.assignedTechnician ? 'Unassigned' : 'New (24h)'
+            console.log(`    - ${ticket.id}: ${ticket.title} [${ticket.status}] (${reason})`)
+          })
+        } else {
+          console.log(`✅ No notifications - all tickets are assigned or resolved`)
         }
       }
 

@@ -20,8 +20,13 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
   // Check for notifications every 30 seconds
   useEffect(() => {
     const checkNotifications = () => {
-      const count = ticketService.getNotificationCount()
-      setNotificationCount(count)
+      const details = ticketService.getNotificationDetails()
+      setNotificationCount(details.count)
+      
+      // Log for debugging
+      if (details.count > 0) {
+        console.log(`🏠 Login Page Notifications: ${details.count} ticket(s) need attention`)
+      }
     }
 
     // Check immediately and then every 30 seconds
