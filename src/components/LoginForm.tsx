@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { authService, AuthUser } from '@/lib/auth'
+import { ticketService } from '@/lib/tickets'
 
 interface LoginFormProps {
   onLoginSuccess: (user: AuthUser) => void
@@ -12,8 +13,23 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [notificationCount, setNotificationCount] = useState(0)
 
   const departments = authService.getAllDepartments()
+
+  // Check for notifications every 30 seconds
+  useEffect(() => {
+    const checkNotifications = () => {
+      const count = ticketService.getNotificationCount()
+      setNotificationCount(count)
+    }
+
+    // Check immediately and then every 30 seconds
+    checkNotifications()
+    const interval = setInterval(checkNotifications, 30000)
+    
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,7 +80,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
                     key={index}
                     type="button"
                     onClick={() => handleDepartmentSelect(dept.name)}
-                    className="text-left px-4 py-4 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 hover:border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[80px] flex flex-col justify-center items-center"
+                    className="relative text-left px-4 py-4 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 hover:border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[80px] flex flex-col justify-center items-center"
                   >
                     <div className="flex flex-col items-center space-y-2">
                       <span className="text-2xl">{dept.avatar}</span>
@@ -73,6 +89,13 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
                         <div className="text-xs text-gray-500 mt-1">{dept.role}</div>
                       </div>
                     </div>
+                    
+                    {/* Notification badge for IT Administration */}
+                    {dept.name === 'IT Administration' && notificationCount > 0 && (
+                      <div className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
+                        {notificationCount > 9 ? '9+' : notificationCount}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
