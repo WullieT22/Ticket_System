@@ -6,19 +6,11 @@
   - Local:        http://localhost:3000
 
  ✓ Starting...
- ✓ Ready in 1116ms
- ✓ Compiled / in 453ms (467 modules)
- GET / 200 in 537ms
- ✓ Compiled in 56ms (242 modules)
- ✓ Compiled /dashboard in 68ms (474 modules)
- ✓ Compiled in 142ms (483 modules)
- ✓ Compiled in 101ms (483 modules)
- ✓ Compiled in 91ms (483 modules)
- ✓ Compiled in 37ms (251 modules)
- ✓ Compiled in 107ms (483 modules)
- ✓ Compiled in 124ms (483 modules)
- ✓ Compiled in 102ms (483 modules)
- ✓ Compiled in 76ms (469 modules)
- ✓ Compiled in 95ms (483 modules)
- ✓ Compiled in 104ms (483 modules)
- ✓ Compiled in 147ms (483 modules)
+ ✓ Ready in 946ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1088ms (476 modules)
+ GET / 200 in 1179ms
+ ✓ Compiled in 53ms (242 modules)
+ ✓ Compiled /dashboard in 73ms (474 modules)
+ ✓ Compiled in 110ms (469 modules)
+ ✓ Compiled in 77ms (469 modules)

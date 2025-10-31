@@ -9,39 +9,7 @@ export const AVAILABLE_TECHNICIANS = [
 
 // Extended mock data with more realistic tickets
 const mockTickets: Ticket[] = [
-  // Demo ticket to show notifications working
-  {
-    id: 'TKT-001',
-    title: 'Network Connection Issues in Lab',
-    description: 'Unable to connect to shared drives from laboratory computers. This is affecting our daily operations.',
-    status: 'open',
-    priority: 'high',
-    department: 'QA-QC',
-    category: 'Network Issues',
-    reportedBy: 'qa.qc@company.com',
-    assignedTo: '',
-    assignedTechnician: undefined,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day from now
-    adminComments: ''
-  },
-  {
-    id: 'TKT-002', 
-    title: 'Printer Not Working',
-    description: 'The main printer in the office is showing error messages and not printing documents.',
-    status: 'open',
-    priority: 'medium',
-    department: 'Office-Westfield',
-    category: 'Hardware Issues',
-    reportedBy: 'office.westfield@company.com',
-    assignedTo: '',
-    assignedTechnician: undefined,
-    createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    updatedAt: new Date(Date.now() - 30 * 60 * 1000),
-    dueDate: new Date(Date.now() + 48 * 60 * 60 * 1000), // 2 days from now
-    adminComments: ''
-  }
+  // Starting with clean slate - no demo tickets
 ]
 
 const mockComments: Comment[] = [
