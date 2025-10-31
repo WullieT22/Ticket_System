@@ -23,3 +23,14 @@
  ✓ Compiled in 91ms (485 modules)
  ✓ Compiled in 103ms (485 modules)
  ✓ Compiled in 130ms (471 modules)
+ GET /dashboard 200 in 65ms
+ GET /dashboard 200 in 26ms
+ ✓ Compiled / in 96ms (238 modules)
+ GET /dashboard 200 in 54ms
+ ✓ Compiled in 117ms (490 modules)
+ ✓ Compiled in 67ms (471 modules)
+ ✓ Compiled in 64ms (471 modules)
+ ✓ Compiled in 71ms (471 modules)
+ ✓ Compiled in 71ms (471 modules)
+ ✓ Compiled in 64ms (471 modules)
+ ✓ Compiled in 121ms (485 modules)

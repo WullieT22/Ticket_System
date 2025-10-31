@@ -121,6 +121,49 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Data Management Section - Only for Administrators */}
+      {user?.role === 'administrator' && (
+        <div className="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <span className="mr-2">💾</span>
+            Data Management
+          </h3>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => {
+                const data = ticketService.exportData()
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `ticket-system-backup-${new Date().toISOString().split('T')[0]}.json`
+                a.click()
+                URL.revokeObjectURL(url)
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+            >
+              📥 Export Backup
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('⚠️ This will permanently delete all tickets and comments. Are you sure?')) {
+                  ticketService.clearAllData()
+                  loadTickets()
+                  alert('✅ All data cleared successfully')
+                }
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
+            >
+              🗑️ Clear All Data
+            </button>
+            <div className="text-sm text-gray-500 flex items-center">
+              <span className="mr-2">💡</span>
+              Data is automatically saved to browser storage
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filters and Search */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Tickets</h3>

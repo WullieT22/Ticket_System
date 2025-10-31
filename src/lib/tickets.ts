@@ -18,8 +18,80 @@ const mockComments: Comment[] = [
 ]
 
 class TicketService {
-  private tickets: Ticket[] = [...mockTickets]
-  private comments: Comment[] = [...mockComments]
+  private tickets: Ticket[] = []
+  private comments: Comment[] = []
+  private readonly STORAGE_KEY = 'it-ticket-system-tickets'
+  private readonly COMMENTS_KEY = 'it-ticket-system-comments'
+
+  constructor() {
+    this.loadFromStorage()
+  }
+
+  // Load tickets and comments from localStorage
+  private loadFromStorage(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        // Load tickets
+        const storedTickets = localStorage.getItem(this.STORAGE_KEY)
+        if (storedTickets) {
+          const parsedTickets = JSON.parse(storedTickets)
+          // Convert date strings back to Date objects
+          this.tickets = parsedTickets.map((ticket: any) => ({
+            ...ticket,
+            createdAt: new Date(ticket.createdAt),
+            updatedAt: new Date(ticket.updatedAt),
+            dueDate: ticket.dueDate ? new Date(ticket.dueDate) : undefined,
+            completedAt: ticket.completedAt ? new Date(ticket.completedAt) : undefined,
+          }))
+        } else {
+          // Initialize with mock data only if no stored data exists
+          this.tickets = [...mockTickets]
+        }
+
+        // Load comments
+        const storedComments = localStorage.getItem(this.COMMENTS_KEY)
+        if (storedComments) {
+          const parsedComments = JSON.parse(storedComments)
+          this.comments = parsedComments.map((comment: any) => ({
+            ...comment,
+            createdAt: new Date(comment.createdAt),
+          }))
+        } else {
+          this.comments = [...mockComments]
+        }
+      } catch (error) {
+        console.error('Error loading data from localStorage:', error)
+        this.tickets = [...mockTickets]
+        this.comments = [...mockComments]
+      }
+    } else {
+      // Server-side rendering fallback
+      this.tickets = [...mockTickets]
+      this.comments = [...mockComments]
+    }
+  }
+
+  // Save tickets to localStorage
+  private saveTicketsToStorage(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.tickets))
+      } catch (error) {
+        console.error('Error saving tickets to localStorage:', error)
+      }
+    }
+  }
+
+  // Save comments to localStorage
+  private saveCommentsToStorage(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(this.COMMENTS_KEY, JSON.stringify(this.comments))
+      } catch (error) {
+        console.error('Error saving comments to localStorage:', error)
+      }
+    }
+  }
 
   // Get all tickets with optional filtering
   getTickets(filters?: {
@@ -69,6 +141,7 @@ class TicketService {
       updatedAt: new Date(),
     }
     this.tickets.unshift(newTicket)
+    this.saveTicketsToStorage() // Save to localStorage
     
     // Send email notification for new ticket
     this.sendNewTicketEmail(newTicket)
@@ -118,6 +191,7 @@ class TicketService {
     }
 
     this.tickets[index] = updatedTicket
+    this.saveTicketsToStorage() // Save to localStorage
     
     // Send email notification if technician was assigned
     if (updates.assignedTechnician && updates.assignedTechnician !== currentTicket.assignedTechnician) {
@@ -151,6 +225,7 @@ class TicketService {
       adminComments,
       updatedAt: new Date(),
     }
+    this.saveTicketsToStorage() // Save to localStorage
     return this.tickets[index]
   }
 
@@ -172,6 +247,7 @@ class TicketService {
       createdAt: new Date(),
     }
     this.comments.push(comment)
+    this.saveCommentsToStorage() // Save to localStorage
     return comment
   }
 
@@ -290,6 +366,25 @@ class TicketService {
   // Get recent email notifications
   getRecentEmailNotifications() {
     return emailService.getRecentNotifications()
+  }
+
+  // Clear all data (for testing/reset)
+  clearAllData(): void {
+    this.tickets = []
+    this.comments = []
+    this.saveTicketsToStorage()
+    this.saveCommentsToStorage()
+    emailService.clearNotifications()
+    console.log('🗑️ All ticket data cleared')
+  }
+
+  // Export data for backup
+  exportData() {
+    return {
+      tickets: this.tickets,
+      comments: this.comments,
+      emailNotifications: emailService.getNotifications()
+    }
   }
 }
 
