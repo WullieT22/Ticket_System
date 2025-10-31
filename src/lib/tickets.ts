@@ -133,7 +133,7 @@ class TicketService {
   }
 
   // Create new ticket
-  createTicket(data: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>): Ticket {
+  async createTicket(data: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>): Promise<Ticket> {
     const newTicket: Ticket = {
       ...data,
       id: `TKT-${String(this.tickets.length + 1).padStart(3, '0')}`,
@@ -144,7 +144,7 @@ class TicketService {
     this.saveTicketsToStorage() // Save to localStorage
     
     // Send email notification for new ticket
-    this.sendNewTicketEmail(newTicket)
+    await this.sendNewTicketEmail(newTicket)
     
     return newTicket
   }
@@ -164,7 +164,7 @@ class TicketService {
   }
 
   // Update ticket
-  updateTicket(id: string, updates: Partial<Ticket>): Ticket | null {
+  async updateTicket(id: string, updates: Partial<Ticket>): Promise<Ticket | null> {
     const index = this.tickets.findIndex(t => t.id === id)
     if (index === -1) return null
 
@@ -195,7 +195,7 @@ class TicketService {
     
     // Send email notification if technician was assigned
     if (updates.assignedTechnician && updates.assignedTechnician !== currentTicket.assignedTechnician) {
-      this.sendTechnicianAssignmentEmail(updatedTicket, updates.assignedTechnician)
+      await this.sendTechnicianAssignmentEmail(updatedTicket, updates.assignedTechnician)
     }
     
     return this.tickets[index]
@@ -321,18 +321,20 @@ class TicketService {
       const isActiveStatus = t.status === 'open' || t.status === 'in-progress'
       if (!isActiveStatus) return false
       
-      // Either newly created (last 24h) OR unassigned, but count each ticket only once
-      const isNew = t.createdAt > twentyFourHoursAgo
+      // Priority: Unassigned tickets always need attention
       const isUnassigned = !t.assignedTechnician
+      if (isUnassigned) return true
       
-      return isNew || isUnassigned
+      // If assigned, only count as needing attention if very new (last 2 hours) and still open
+      const isBrandNew = t.createdAt > new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours
+      return isBrandNew && t.status === 'open'
     })
     
     return ticketsNeedingAttention.length
   }
 
   // Debug method to see exactly which tickets are being counted for notifications
-  getNotificationDetails(): { count: number, tickets: { id: string, title: string, status: string, assignedTechnician?: string, createdAt: Date }[] } {
+  getNotificationDetails(): { count: number, tickets: { id: string, title: string, status: string, assignedTechnician?: string, createdAt: Date, reason: string }[] } {
     const twentyFourHoursAgo = new Date()
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
     
@@ -340,21 +342,32 @@ class TicketService {
       const isActiveStatus = t.status === 'open' || t.status === 'in-progress'
       if (!isActiveStatus) return false
       
-      const isNew = t.createdAt > twentyFourHoursAgo
       const isUnassigned = !t.assignedTechnician
+      if (isUnassigned) return true
       
-      return isNew || isUnassigned
+      const isBrandNew = t.createdAt > new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours
+      return isBrandNew && t.status === 'open'
     })
     
     return {
       count: ticketsNeedingAttention.length,
-      tickets: ticketsNeedingAttention.map(t => ({
-        id: t.id,
-        title: t.title,
-        status: t.status,
-        assignedTechnician: t.assignedTechnician,
-        createdAt: t.createdAt
-      }))
+      tickets: ticketsNeedingAttention.map(t => {
+        const isUnassigned = !t.assignedTechnician
+        const isBrandNew = t.createdAt > new Date(Date.now() - 2 * 60 * 60 * 1000)
+        
+        let reason = ''
+        if (isUnassigned) reason = 'Unassigned'
+        else if (isBrandNew && t.status === 'open') reason = 'Brand New (2h)'
+        
+        return {
+          id: t.id,
+          title: t.title,
+          status: t.status,
+          assignedTechnician: t.assignedTechnician,
+          createdAt: t.createdAt,
+          reason
+        }
+      })
     }
   }
 

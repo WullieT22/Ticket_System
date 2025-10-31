@@ -37,8 +37,7 @@ export default function DashboardLayout({
           console.log(`  Total Count: ${notificationDetails.count}`)
           console.log(`  Tickets needing attention:`)
           notificationDetails.tickets.forEach(ticket => {
-            const reason = !ticket.assignedTechnician ? 'Unassigned' : 'New (24h)'
-            console.log(`    - ${ticket.id}: ${ticket.title} [${ticket.status}] (${reason})`)
+            console.log(`    - ${ticket.id}: ${ticket.title} [${ticket.status}] (${ticket.reason})`)
           })
         } else {
           console.log(`✅ No notifications - all tickets are assigned or resolved`)

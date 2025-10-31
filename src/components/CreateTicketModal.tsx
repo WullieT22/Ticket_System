@@ -30,7 +30,7 @@ export default function CreateTicketModal({ isOpen, onClose, onTicketCreated }: 
 
   const departments = authService.getAllOperators()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     const ticketData = {
@@ -42,7 +42,7 @@ export default function CreateTicketModal({ isOpen, onClose, onTicketCreated }: 
       assignedTechnician: formData.assignedTechnician || undefined,
     }
 
-    ticketService.createTicket(ticketData)
+    await ticketService.createTicket(ticketData)
     onTicketCreated()
     onClose()
     

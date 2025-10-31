@@ -51,9 +51,9 @@ export default function TicketCard({ ticket, currentUser, onUpdate }: TicketCard
     closed: 'bg-gray-100 text-gray-800'
   }
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = async (newStatus: string) => {
     if (currentUser && (currentUser.role === 'administrator' || ticket.assignedTo === currentUser.email)) {
-      ticketService.updateTicket(ticket.id, { status: newStatus as any })
+      await ticketService.updateTicket(ticket.id, { status: newStatus as any })
       onUpdate?.()
     }
   }
@@ -71,9 +71,9 @@ export default function TicketCard({ ticket, currentUser, onUpdate }: TicketCard
     setIsEditingComments(false)
   }
 
-  const handleSaveTechnician = () => {
+  const handleSaveTechnician = async () => {
     if (currentUser?.role === 'administrator') {
-      ticketService.updateTicket(ticket.id, { assignedTechnician: selectedTechnician || undefined })
+      await ticketService.updateTicket(ticket.id, { assignedTechnician: selectedTechnician || undefined })
       setIsEditingTechnician(false)
       onUpdate?.()
     }
