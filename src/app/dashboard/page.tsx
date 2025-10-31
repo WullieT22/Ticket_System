@@ -10,6 +10,7 @@ import CreateTicketModal from '@/components/CreateTicketModal'
 export default function DashboardPage() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [emailNotifications, setEmailNotifications] = useState<any[]>([])
   const [filters, setFilters] = useState({
     status: '',
     priority: '',
@@ -40,6 +41,12 @@ export default function DashboardPage() {
     }
     
     setTickets(filteredTickets)
+
+    // Load email notifications for administrators
+    if (user?.role === 'administrator') {
+      const recentEmails = ticketService.getRecentEmailNotifications()
+      setEmailNotifications(recentEmails)
+    }
   }, [filters, user])
 
   useEffect(() => {
@@ -80,6 +87,39 @@ export default function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">Completed today</p>
         </div>
       </div>
+
+      {/* Email Notifications Section - Only for Administrators */}
+      {user?.role === 'administrator' && (
+        <div className="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <span className="mr-2">📧</span>
+            Recent Email Notifications
+            <span className="ml-2 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+              {emailNotifications.length}
+            </span>
+          </h3>
+          {emailNotifications.length === 0 ? (
+            <p className="text-gray-500 text-sm">No email notifications sent recently</p>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {emailNotifications.slice(0, 10).map((email, index) => (
+                <div key={index} className="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900 text-sm">{email.subject}</p>
+                      <p className="text-xs text-gray-600">To: {email.to}</p>
+                      <p className="text-xs text-gray-500">{email.timestamp.toLocaleString()}</p>
+                    </div>
+                    <span className="text-green-600 text-xs font-medium bg-green-100 px-2 py-1 rounded">
+                      Sent ✓
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Filters and Search */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">

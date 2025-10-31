@@ -1,4 +1,5 @@
 import { Ticket, Comment } from '@/types'
+import { emailService } from './email'
 
 // Available technicians for assignment
 export const AVAILABLE_TECHNICIANS = [
@@ -76,17 +77,17 @@ class TicketService {
   }
 
   // Send email notification for new ticket
-  private sendNewTicketEmail(ticket: Ticket): void {
-    // In a real application, this would call an API endpoint
-    console.log(`📧 New ticket notification sent to william.turner@eolabs.com`)
-    console.log(`Subject: New Ticket Created - ${ticket.id}`)
-    console.log(`Title: ${ticket.title}`)
-    console.log(`Priority: ${ticket.priority.toUpperCase()}`)
-    console.log(`Department: ${ticket.department}`)
-    console.log(`Reported by: ${ticket.reportedBy}`)
-    console.log(`Created: ${ticket.createdAt.toLocaleString()}`)
-    
-    // You would implement actual email sending here
+  private async sendNewTicketEmail(ticket: Ticket): Promise<void> {
+    try {
+      const emailSent = await emailService.sendNewTicketNotification(ticket)
+      if (emailSent) {
+        console.log(`✅ New ticket email notification sent successfully for ${ticket.id}`)
+      } else {
+        console.error(`❌ Failed to send new ticket email for ${ticket.id}`)
+      }
+    } catch (error) {
+      console.error(`❌ Error sending new ticket email for ${ticket.id}:`, error)
+    }
   }
 
   // Update ticket
@@ -127,26 +128,17 @@ class TicketService {
   }
 
   // Send email notification for technician assignment
-  private sendTechnicianAssignmentEmail(ticket: Ticket, technicianName: string): void {
-    // In a real application, this would call an API endpoint
-    console.log(`📧 Email notification sent to william.turner@eolabs.com`)
-    console.log(`Subject: Ticket ${ticket.id} Assigned to ${technicianName}`)
-    console.log(`Ticket: ${ticket.title}`)
-    console.log(`Priority: ${ticket.priority.toUpperCase()}`)
-    console.log(`Department: ${ticket.department}`)
-    console.log(`Assigned Technician: ${technicianName}`)
-    console.log(`Due Date: ${ticket.dueDate ? ticket.dueDate.toLocaleDateString() : 'Not set'}`)
-    
-    // You would implement actual email sending here
-    // Example: 
-    // await fetch('/api/send-assignment-notification', { 
-    //   method: 'POST', 
-    //   body: JSON.stringify({ 
-    //     ticket, 
-    //     technician: technicianName, 
-    //     email: 'william.turner@eolabs.com' 
-    //   }) 
-    // })
+  private async sendTechnicianAssignmentEmail(ticket: Ticket, technicianName: string): Promise<void> {
+    try {
+      const emailSent = await emailService.sendTechnicianAssignmentNotification(ticket, technicianName)
+      if (emailSent) {
+        console.log(`✅ Technician assignment email sent successfully for ${ticket.id} → ${technicianName}`)
+      } else {
+        console.error(`❌ Failed to send assignment email for ${ticket.id}`)
+      }
+    } catch (error) {
+      console.error(`❌ Error sending assignment email for ${ticket.id}:`, error)
+    }
   }
 
   // Update admin comments specifically
@@ -288,6 +280,16 @@ class TicketService {
         createdAt: t.createdAt
       }))
     }
+  }
+
+  // Get email notification history
+  getEmailNotifications() {
+    return emailService.getNotifications()
+  }
+
+  // Get recent email notifications
+  getRecentEmailNotifications() {
+    return emailService.getRecentNotifications()
   }
 }
 
