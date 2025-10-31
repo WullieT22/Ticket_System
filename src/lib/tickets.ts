@@ -68,7 +68,25 @@ class TicketService {
       updatedAt: new Date(),
     }
     this.tickets.unshift(newTicket)
+    
+    // Send email notification for new ticket
+    this.sendNewTicketEmail(newTicket)
+    
     return newTicket
+  }
+
+  // Send email notification for new ticket
+  private sendNewTicketEmail(ticket: Ticket): void {
+    // In a real application, this would call an API endpoint
+    console.log(`📧 New ticket notification sent to william.turner@eolabs.com`)
+    console.log(`Subject: New Ticket Created - ${ticket.id}`)
+    console.log(`Title: ${ticket.title}`)
+    console.log(`Priority: ${ticket.priority.toUpperCase()}`)
+    console.log(`Department: ${ticket.department}`)
+    console.log(`Reported by: ${ticket.reportedBy}`)
+    console.log(`Created: ${ticket.createdAt.toLocaleString()}`)
+    
+    // You would implement actual email sending here
   }
 
   // Update ticket
@@ -99,7 +117,36 @@ class TicketService {
     }
 
     this.tickets[index] = updatedTicket
+    
+    // Send email notification if technician was assigned
+    if (updates.assignedTechnician && updates.assignedTechnician !== currentTicket.assignedTechnician) {
+      this.sendTechnicianAssignmentEmail(updatedTicket, updates.assignedTechnician)
+    }
+    
     return this.tickets[index]
+  }
+
+  // Send email notification for technician assignment
+  private sendTechnicianAssignmentEmail(ticket: Ticket, technicianName: string): void {
+    // In a real application, this would call an API endpoint
+    console.log(`📧 Email notification sent to william.turner@eolabs.com`)
+    console.log(`Subject: Ticket ${ticket.id} Assigned to ${technicianName}`)
+    console.log(`Ticket: ${ticket.title}`)
+    console.log(`Priority: ${ticket.priority.toUpperCase()}`)
+    console.log(`Department: ${ticket.department}`)
+    console.log(`Assigned Technician: ${technicianName}`)
+    console.log(`Due Date: ${ticket.dueDate ? ticket.dueDate.toLocaleDateString() : 'Not set'}`)
+    
+    // You would implement actual email sending here
+    // Example: 
+    // await fetch('/api/send-assignment-notification', { 
+    //   method: 'POST', 
+    //   body: JSON.stringify({ 
+    //     ticket, 
+    //     technician: technicianName, 
+    //     email: 'william.turner@eolabs.com' 
+    //   }) 
+    // })
   }
 
   // Update admin comments specifically
@@ -147,6 +194,16 @@ class TicketService {
     const urgent = this.tickets.filter(t => t.priority === 'urgent').length
     const high = this.tickets.filter(t => t.priority === 'high').length
 
+    // Count tickets assigned to technicians
+    const assignedToTechnicians = this.tickets.filter(t => t.assignedTechnician).length
+    
+    // Breakdown by individual technicians
+    const technicianBreakdown = {
+      William: this.tickets.filter(t => t.assignedTechnician === 'William').length,
+      Andy: this.tickets.filter(t => t.assignedTechnician === 'Andy').length,
+      Anthony: this.tickets.filter(t => t.assignedTechnician === 'Anthony').length,
+    }
+
     return {
       total,
       open,
@@ -155,6 +212,8 @@ class TicketService {
       closed,
       urgent,
       high,
+      assignedToTechnicians,
+      technicianBreakdown,
     }
   }
 
@@ -162,6 +221,30 @@ class TicketService {
   getAllDepartments(): string[] {
     const departments = Array.from(new Set(this.tickets.map(t => t.department)))
     return departments.sort()
+  }
+
+  // Get count of new tickets for notifications (tickets created in last 24 hours)
+  getNewTicketCount(): number {
+    const twentyFourHoursAgo = new Date()
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
+    
+    return this.tickets.filter(t => 
+      t.createdAt > twentyFourHoursAgo && 
+      t.status === 'open'
+    ).length
+  }
+
+  // Get count of unassigned tickets for notifications
+  getUnassignedTicketCount(): number {
+    return this.tickets.filter(t => 
+      !t.assignedTechnician && 
+      (t.status === 'open' || t.status === 'in-progress')
+    ).length
+  }
+
+  // Get total notification count for admin bell
+  getNotificationCount(): number {
+    return this.getNewTicketCount() + this.getUnassignedTicketCount()
   }
 }
 
