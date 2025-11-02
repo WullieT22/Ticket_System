@@ -31,3 +31,15 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Development files
+server_output.tmp
+*.log
+
+# IDE files
+.vscode/settings.json
+.idea/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
