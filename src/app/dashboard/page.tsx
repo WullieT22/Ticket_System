@@ -197,6 +197,18 @@ export default function DashboardPage() {
                 doc.setFillColor(37, 99, 235) // Blue
                 doc.rect(0, 0, pageWidth, 35, 'F')
                 
+                // Completion Rate Box in header (top right)
+                const completionRate = tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0
+                doc.setFillColor(34, 197, 94) // Green
+                doc.roundedRect(pageWidth - 50, 7, 40, 22, 3, 3, 'F')
+                doc.setTextColor(255, 255, 255)
+                doc.setFontSize(9)
+                doc.setFont('helvetica', 'bold')
+                doc.text('COMPLETION', pageWidth - 30, 13, { align: 'center' })
+                doc.text('RATE', pageWidth - 30, 18, { align: 'center' })
+                doc.setFontSize(16)
+                doc.text(`${completionRate}%`, pageWidth - 30, 26, { align: 'center' })
+                
                 // Title
                 doc.setTextColor(255, 255, 255)
                 doc.setFontSize(24)
@@ -243,34 +255,31 @@ export default function DashboardPage() {
                   doc.setFont('helvetica', 'normal')
                   doc.text(metric.label, chartStartX, y + 6)
                   
-                  // Bar
+                  // Bar - full width background
                   const barWidth = (metric.value / maxValue) * maxBarWidth
                   doc.setFillColor(metric.color[0], metric.color[1], metric.color[2])
                   doc.roundedRect(chartStartX + 45, y, barWidth, barHeight, 2, 2, 'F')
                   
-                  // Value
-                  doc.setFont('helvetica', 'bold')
-                  doc.text(String(metric.value), chartStartX + 45 + barWidth + 3, y + 6)
-                  
-                  // Percentage
+                  // Value and percentage INSIDE the bar (white text)
                   const percentage = tickets.length > 0 ? Math.round((metric.value / tickets.length) * 100) : 0
-                  doc.setFont('helvetica', 'normal')
+                  doc.setTextColor(255, 255, 255)
+                  doc.setFont('helvetica', 'bold')
                   doc.setFontSize(9)
-                  doc.text(`(${percentage}%)`, chartStartX + 45 + barWidth + 12, y + 6)
+                  const barText = `${metric.value} (${percentage}%)`
+                  // Position text inside bar, centered
+                  doc.text(barText, chartStartX + 48, y + 6)
+                  
+                  // Percentage outside if bar is too small
+                  if (barWidth < 25) {
+                    doc.setTextColor(0, 0, 0)
+                    doc.text(barText, chartStartX + 45 + barWidth + 3, y + 6)
+                  }
+                  
+                  // Reset text color for next iteration
+                  doc.setTextColor(0, 0, 0)
                 })
                 
                 yPos = chartStartY + (metrics.length * 12) + 8
-                
-                // Completion Rate Box
-                doc.setFillColor(34, 197, 94)
-                doc.roundedRect(chartStartX + 160, chartStartY, 55, 25, 3, 3, 'F')
-                doc.setTextColor(255, 255, 255)
-                doc.setFontSize(12)
-                doc.setFont('helvetica', 'bold')
-                doc.text('COMPLETION RATE', chartStartX + 187.5, chartStartY + 10, { align: 'center' })
-                doc.setFontSize(24)
-                const completionRate = tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0
-                doc.text(`${completionRate}%`, chartStartX + 187.5, chartStartY + 21, { align: 'center' })
                 
                 // Completed Tickets Detail Table
                 yPos += 5
