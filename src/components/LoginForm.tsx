@@ -63,8 +63,8 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Logo in top left corner */}
-      <div className="absolute top-8 left-8">
+      {/* Logo aligned with white box */}
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none sm:ml-[calc(50%-32rem)]">
         <img 
           src="/logo.png" 
           alt="Company Logo" 
