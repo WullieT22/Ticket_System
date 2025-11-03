@@ -1,0 +1,7 @@
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=wt22.tickets@gmail.com
+SMTP_PASS=qbyp klxf tjfy grgp
+EMAIL_FROM=wt22.tickets@gmail.com
+EMAIL_TO=wt22@live.co.uk
