@@ -164,11 +164,12 @@ export default function DashboardPage() {
             <div className="flex gap-3">
             <button
               onClick={async () => {
-                // Dynamic import to avoid SSR issues
-                const jsPDF = (await import('jspdf')).default
-                const autoTable = (await import('jspdf-autotable')).default
-                
-                const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+                try {
+                  // Dynamic import to avoid SSR issues
+                  const { default: jsPDF } = await import('jspdf')
+                  await import('jspdf-autotable')
+                  
+                  const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
                 const openTickets = tickets.filter(t => t.status === 'open')
                 const inProgressTickets = tickets.filter(t => t.status === 'in-progress')
                 const urgentTickets = tickets.filter(t => t.priority === 'urgent')
@@ -346,6 +347,10 @@ export default function DashboardPage() {
                 
                 // Save PDF
                 doc.save(`kpi-report-${new Date().toISOString().split('T')[0]}.pdf`)
+                } catch (error) {
+                  console.error('PDF Export Error:', error)
+                  alert('Failed to generate PDF. Please try again or export as CSV instead.')
+                }
               }}
               className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
             >
