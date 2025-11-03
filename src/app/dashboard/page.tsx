@@ -255,28 +255,33 @@ export default function DashboardPage() {
                   doc.setFont('helvetica', 'normal')
                   doc.text(metric.label, chartStartX, y + 6)
                   
-                  // Bar - full width background
+                  // Bar with value inside
                   const barWidth = (metric.value / maxValue) * maxBarWidth
                   doc.setFillColor(metric.color[0], metric.color[1], metric.color[2])
                   doc.roundedRect(chartStartX + 45, y, barWidth, barHeight, 2, 2, 'F')
                   
-                  // Value and percentage INSIDE the bar (white text)
-                  const percentage = tickets.length > 0 ? Math.round((metric.value / tickets.length) * 100) : 0
+                  // Value INSIDE the bar (white text)
                   doc.setTextColor(255, 255, 255)
                   doc.setFont('helvetica', 'bold')
                   doc.setFontSize(9)
-                  const barText = `${metric.value} (${percentage}%)`
-                  // Position text inside bar, centered
-                  doc.text(barText, chartStartX + 48, y + 6)
+                  const valueText = String(metric.value)
+                  doc.text(valueText, chartStartX + 48, y + 6)
                   
-                  // Percentage outside if bar is too small
-                  if (barWidth < 25) {
-                    doc.setTextColor(0, 0, 0)
-                    doc.text(barText, chartStartX + 45 + barWidth + 3, y + 6)
-                  }
-                  
-                  // Reset text color for next iteration
+                  // Percentage OUTSIDE the bar (black text)
+                  const percentage = tickets.length > 0 ? Math.round((metric.value / tickets.length) * 100) : 0
                   doc.setTextColor(0, 0, 0)
+                  doc.setFont('helvetica', 'normal')
+                  doc.setFontSize(9)
+                  doc.text(`(${percentage}%)`, chartStartX + 45 + barWidth + 3, y + 6)
+                  
+                  // If bar is too small, show value outside instead
+                  if (barWidth < 15) {
+                    doc.setTextColor(0, 0, 0)
+                    doc.setFont('helvetica', 'bold')
+                    doc.text(valueText, chartStartX + 45 + barWidth + 3, y + 6)
+                    doc.setFont('helvetica', 'normal')
+                    doc.text(`(${percentage}%)`, chartStartX + 45 + barWidth + 10, y + 6)
+                  }
                 })
                 
                 yPos = chartStartY + (metrics.length * 12) + 8
@@ -312,7 +317,7 @@ export default function DashboardPage() {
                     t.title,
                     t.department,
                     t.priority.toUpperCase(),
-                    t.reportedBy,
+                    t.contactName || t.reportedBy, // Use contact name if available, fallback to email
                     t.assignedTechnician || 'Unassigned',
                     createdDate.toLocaleDateString(),
                     completedDate.toLocaleDateString(),
@@ -436,7 +441,7 @@ export default function DashboardPage() {
                     adminNotes
                   ].filter(note => note.trim()).join(' | ')
                   
-                  csv += `${csvEscape(t.id)},${csvEscape(t.title)},${csvEscape(t.department)},${csvEscape(t.priority.toUpperCase())},${csvEscape(t.status.toUpperCase())},${csvEscape(t.reportedBy)},${csvEscape(t.assignedTechnician || 'Unassigned')},${csvEscape(createdDate.toLocaleDateString())},${csvEscape(t.completedAt ? completedDate.toLocaleDateString() : 'N/A')},${csvEscape(daysToComplete)},${csvEscape(fullAdminNotes || 'No notes')}\n`
+                  csv += `${csvEscape(t.id)},${csvEscape(t.title)},${csvEscape(t.department)},${csvEscape(t.priority.toUpperCase())},${csvEscape(t.status.toUpperCase())},${csvEscape(t.contactName || t.reportedBy)},${csvEscape(t.assignedTechnician || 'Unassigned')},${csvEscape(createdDate.toLocaleDateString())},${csvEscape(t.completedAt ? completedDate.toLocaleDateString() : 'N/A')},${csvEscape(daysToComplete)},${csvEscape(fullAdminNotes || 'No notes')}\n`
                 })
                 
                 csv += '\n'
