@@ -165,8 +165,16 @@ export default function DashboardPage() {
             <button
               onClick={async () => {
                 try {
-                  // Dynamic import to avoid SSR issues
-                  const { default: jsPDF } = await import('jspdf')
+                  // Ensure we're in browser environment
+                  if (typeof window === 'undefined') {
+                    throw new Error('PDF generation only works in browser')
+                  }
+                  
+                  // Dynamic import to avoid SSR issues - must be done this way for Vercel
+                  const jsPDFModule = await import('jspdf')
+                  const jsPDF = jsPDFModule.default
+                  
+                  // Import autotable plugin - it extends jsPDF prototype automatically
                   await import('jspdf-autotable')
                   
                   const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
@@ -347,9 +355,10 @@ export default function DashboardPage() {
                 
                 // Save PDF
                 doc.save(`kpi-report-${new Date().toISOString().split('T')[0]}.pdf`)
-                } catch (error) {
+                } catch (error: any) {
                   console.error('PDF Export Error:', error)
-                  alert('Failed to generate PDF. Please try again or export as CSV instead.')
+                  const errorMessage = error?.message || 'Unknown error'
+                  alert(`Failed to generate PDF: ${errorMessage}\n\nPlease try again or export as CSV instead.`)
                 }
               }}
               className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
