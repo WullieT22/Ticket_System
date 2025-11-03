@@ -63,19 +63,6 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Logo aligned with white box */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none sm:ml-[calc(50%-32rem)]">
-        <img 
-          src="/logo.png" 
-          alt="Company Logo" 
-          className="h-16 w-auto"
-          onError={(e) => {
-            // Hide logo if image fails to load
-            e.currentTarget.style.display = 'none'
-          }}
-        />
-      </div>
-      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           IT Ticket System
@@ -85,7 +72,19 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl relative">
+        {/* Logo aligned with white box - positioned relative to this container */}
+        <div className="absolute -top-20 left-0 px-4 sm:px-10">
+          <img 
+            src="/logo.png" 
+            alt="Company Logo" 
+            className="h-16 w-auto"
+            onError={(e) => {
+              // Hide logo if image fails to load
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+        </div>
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {!selectedDepartment ? (
             <div>
