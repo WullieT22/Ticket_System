@@ -312,7 +312,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-blue-700 mt-1">
                   All closed and resolved tickets remain in the system permanently for historical records and KPI reporting. 
                   They are included in completion rates, weekly summaries, and export reports. 
-                  Only use "Clear All Data" if you need to completely reset the system.
+                  Only use &quot;Clear All Data&quot; if you need to completely reset the system.
                 </p>
               </div>
             </div>
