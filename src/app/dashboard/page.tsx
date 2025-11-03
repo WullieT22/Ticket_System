@@ -11,6 +11,8 @@ export default function DashboardPage() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [emailNotifications, setEmailNotifications] = useState<any[]>([])
+  const [showWeekSelector, setShowWeekSelector] = useState(false)
+  const [selectedWeek, setSelectedWeek] = useState(0) // 0 = this week, 1 = last week, etc.
   const [filters, setFilters] = useState({
     status: '',
     priority: '',
@@ -19,6 +21,25 @@ export default function DashboardPage() {
   })
 
   const user = authService.getCurrentUser()
+  
+  // Calculate date ranges for weeks
+  const getWeekRange = (weeksAgo: number) => {
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay() - (weeksAgo * 7)) // Start of week (Sunday)
+    startOfWeek.setHours(0, 0, 0, 0)
+    
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6) // End of week (Saturday)
+    endOfWeek.setHours(23, 59, 59, 999)
+    
+    return { start: startOfWeek, end: endOfWeek }
+  }
+  
+  const getTicketsForWeek = (weeksAgo: number) => {
+    const { start, end } = getWeekRange(weeksAgo)
+    return tickets.filter(t => t.createdAt >= start && t.createdAt <= end)
+  }
 
   const loadTickets = useCallback(() => {
     let filteredTickets = ticketService.getTickets(filters)
@@ -213,10 +234,18 @@ export default function DashboardPage() {
               <div className="text-2xl font-bold">{tickets.filter(t => t.priority === 'urgent').length}</div>
               <div className="text-sm opacity-90">🔥 Urgent</div>
             </button>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="text-2xl font-bold">{tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
-              <div className="text-sm opacity-90">📅 This Week</div>
-            </div>
+            <button
+              onClick={() => setShowWeekSelector(!showWeekSelector)}
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left relative"
+            >
+              <div className="text-2xl font-bold">{getTicketsForWeek(selectedWeek).length}</div>
+              <div className="text-sm opacity-90">
+                📅 {selectedWeek === 0 ? 'This Week' : `${selectedWeek} Week${selectedWeek > 1 ? 's' : ''} Ago`}
+              </div>
+              <div className="text-xs opacity-75 mt-1">
+                {getWeekRange(selectedWeek).start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {getWeekRange(selectedWeek).end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </div>
+            </button>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold">
                 {tickets.length > 0 ? Math.round((tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length / tickets.length) * 100) : 0}%
@@ -224,6 +253,47 @@ export default function DashboardPage() {
               <div className="text-sm opacity-90">✅ Completion Rate</div>
             </div>
           </div>
+          
+          {/* Week Selector Dropdown */}
+          {showWeekSelector && (
+            <div className="mt-4 bg-white/95 backdrop-blur-sm rounded-lg p-4 text-gray-900">
+              <h4 className="font-semibold mb-3">Select Week Range</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map(week => {
+                  const { start, end } = getWeekRange(week)
+                  const count = getTicketsForWeek(week).length
+                  return (
+                    <button
+                      key={week}
+                      onClick={() => {
+                        setSelectedWeek(week)
+                        setShowWeekSelector(false)
+                      }}
+                      className={`p-3 rounded-lg border-2 transition-all text-left ${
+                        selectedWeek === week
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-300 bg-white'
+                      }`}
+                    >
+                      <div className="font-semibold text-sm">
+                        {week === 0 ? 'This Week' : week === 1 ? 'Last Week' : `${week} Weeks Ago`}
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="text-lg font-bold text-blue-600 mt-2">{count} tickets</div>
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                onClick={() => setShowWeekSelector(false)}
+                className="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -234,6 +304,19 @@ export default function DashboardPage() {
             <span className="mr-2">💾</span>
             Data Management
           </h3>
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <span className="text-blue-600 text-xl">ℹ️</span>
+              <div>
+                <p className="text-sm font-medium text-blue-900">Closed Tickets Are Kept for KPI Tracking</p>
+                <p className="text-xs text-blue-700 mt-1">
+                  All closed and resolved tickets remain in the system permanently for historical records and KPI reporting. 
+                  They are included in completion rates, weekly summaries, and export reports. 
+                  Only use "Clear All Data" if you need to completely reset the system.
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="flex space-x-4">
             <button
               onClick={() => {
@@ -252,7 +335,7 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => {
-                if (confirm('⚠️ This will permanently delete all tickets and comments. Are you sure?')) {
+                if (confirm('⚠️ This will permanently delete all tickets and comments, including closed tickets for KPI records. Are you sure?')) {
                   ticketService.clearAllData()
                   loadTickets()
                   alert('✅ All data cleared successfully')
