@@ -174,8 +174,8 @@ export default function DashboardPage() {
                   const jsPDFModule = await import('jspdf')
                   const jsPDF = jsPDFModule.default
                   
-                  // Import autotable plugin - it extends jsPDF prototype automatically
-                  await import('jspdf-autotable')
+                  // Import autoTable as a function for jsPDF v3 + autotable v5
+                  const { default: autoTable } = await import('jspdf-autotable')
                   
                   const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
                 const openTickets = tickets.filter(t => t.status === 'open')
@@ -312,8 +312,8 @@ export default function DashboardPage() {
                   ]
                 })
                 
-                // @ts-ignore - autoTable adds itself to jsPDF
-                doc.autoTable({
+                // Use autoTable function (jsPDF v3 + autotable v5 syntax)
+                autoTable(doc, {
                   startY: yPos,
                   head: [['ID', 'Title', 'Dept', 'Priority', 'Reported By', 'Assigned To', 'Created', 'Completed', 'Days', 'Admin Notes']],
                   body: tableData,
@@ -346,8 +346,7 @@ export default function DashboardPage() {
                 })
                 
                 // Footer
-                // @ts-ignore
-                const finalY = doc.lastAutoTable.finalY || yPos + 20
+                const finalY = (doc as any).lastAutoTable?.finalY || yPos + 20
                 doc.setFontSize(8)
                 doc.setTextColor(100, 100, 100)
                 doc.text(`Total Records: ${completedTickets.length} | Generated: ${new Date().toISOString().split('T')[0]}`, 14, pageHeight - 10)
