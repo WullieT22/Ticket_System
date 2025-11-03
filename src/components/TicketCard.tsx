@@ -146,7 +146,7 @@ export default function TicketCard({ ticket, currentUser, onUpdate }: TicketCard
         {ticket.contactName && (
           <div><span className="font-medium">Contact:</span> {ticket.contactName}</div>
         )}
-        <div>Reported by: {ticket.contactName || ticket.reportedBy}</div>
+        <div>Reported by: {ticket.department}</div>
         {ticket.dueDate && (
           <div className={isOverdue ? 'text-red-600 font-medium' : ''}>
             Due: {ticket.dueDate.toLocaleDateString()}
