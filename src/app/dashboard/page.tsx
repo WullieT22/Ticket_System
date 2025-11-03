@@ -265,7 +265,7 @@ export default function DashboardPage() {
                 doc.text('IT TICKET SYSTEM - KPI REPORT', pageWidth / 2, 15, { align: 'center' })
                 
                 // Date Range Subtitle
-                doc.setFontSize(10)
+                doc.setFontSize(14)
                 doc.setFont('helvetica', 'normal')
                 const dateRangeText = exportStartDate || exportEndDate
                   ? `Report Period: ${exportStartDate || 'Start'} to ${exportEndDate || 'End'}`
