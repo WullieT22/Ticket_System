@@ -56,8 +56,10 @@ A modern, enterprise-grade IT support ticket management system built with Next.j
 - **Automated notifications** for new ticket creation
 - **Assignment alerts** when technicians are assigned
 - **Professional email templates** with complete ticket details
+- **SMTP integration** with Gmail, Outlook, and custom servers
 - **Email tracking dashboard** for administrators
-- **Console simulation** ready for production email API integration
+- **Nodemailer integration** for reliable email delivery
+- See **[EMAIL-SETUP.md](EMAIL-SETUP.md)** for configuration instructions
 
 ## 🚀 Quick Start
 
@@ -78,12 +80,21 @@ A modern, enterprise-grade IT support ticket management system built with Next.j
    npm install
    ```
 
-3. **Start development server**
+3. **Configure email notifications (Optional)**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env.local
+   
+   # Edit .env.local with your SMTP credentials
+   # See EMAIL-SETUP.md for detailed instructions
+   ```
+
+4. **Start development server**
    ```bash
    npm run dev
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    ```
    http://localhost:3000
    ```
@@ -190,10 +201,22 @@ const mockUsers: AuthUser[] = [
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
+**Quick Deploy:**
+1. Push to GitHub
+2. Import project in Vercel Dashboard
+3. Add environment variables (see [VERCEL-ENV-VARIABLES.md](VERCEL-ENV-VARIABLES.md))
+4. Deploy!
+
+**Complete Guide:** See [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md) for detailed instructions including email configuration.
+
+**Via CLI:**
 ```bash
-npm run build
-vercel --prod
+npm install -g vercel
+vercel
 ```
+
+**⚠️ Important:** After deployment, add email environment variables in Vercel Settings → Environment Variables. See [VERCEL-ENV-VARIABLES.md](VERCEL-ENV-VARIABLES.md) for the exact variables to add.
 
 ### Docker
 ```bash
