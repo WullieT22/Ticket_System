@@ -42,7 +42,18 @@ export default function DashboardPage() {
   }
 
   const loadTickets = useCallback(() => {
-    let filteredTickets = ticketService.getTickets(filters)
+    // Handle special "completed" filter that includes both resolved and closed
+    const adjustedFilters: any = { ...filters }
+    if (filters.status === 'completed') {
+      adjustedFilters.status = undefined // We'll filter manually below
+    }
+    
+    let filteredTickets = ticketService.getTickets(adjustedFilters)
+    
+    // Apply custom completed filter (resolved OR closed)
+    if (filters.status === 'completed') {
+      filteredTickets = filteredTickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+    }
     
     // Filter tickets by department (except for administrators who can see all)
     if (user?.role === 'operator') {
@@ -212,11 +223,8 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => {
-                const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
-                if (completedTickets.length > 0) {
-                  // Show completed tickets by filtering
-                  setFilters({ ...filters, status: 'resolved' })
-                }
+                // Show completed tickets (both resolved and closed)
+                setFilters({ ...filters, status: 'completed' })
               }}
               className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left"
             >
