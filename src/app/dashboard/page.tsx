@@ -13,6 +13,8 @@ export default function DashboardPage() {
   const [emailNotifications, setEmailNotifications] = useState<any[]>([])
   const [showWeekSelector, setShowWeekSelector] = useState(false)
   const [selectedWeek, setSelectedWeek] = useState(0) // 0 = this week, 1 = last week, etc.
+  const [exportStartDate, setExportStartDate] = useState('')
+  const [exportEndDate, setExportEndDate] = useState('')
   const [filters, setFilters] = useState({
     status: '',
     priority: '',
@@ -161,7 +163,39 @@ export default function DashboardPage() {
               <span className="mr-2">📊</span>
               KPI Dashboard
             </h3>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
+              {/* Date Range Filter for Export */}
+              <div className="flex gap-2 items-center bg-white/10 backdrop-blur-sm rounded-md px-3 py-2">
+                <label className="text-sm font-medium">Report Date Range:</label>
+                <input
+                  type="date"
+                  value={exportStartDate}
+                  onChange={(e) => setExportStartDate(e.target.value)}
+                  className="bg-white text-gray-900 px-2 py-1 rounded text-sm"
+                  placeholder="Start Date"
+                />
+                <span>to</span>
+                <input
+                  type="date"
+                  value={exportEndDate}
+                  onChange={(e) => setExportEndDate(e.target.value)}
+                  className="bg-white text-gray-900 px-2 py-1 rounded text-sm"
+                  placeholder="End Date"
+                />
+                {(exportStartDate || exportEndDate) && (
+                  <button
+                    onClick={() => {
+                      setExportStartDate('')
+                      setExportEndDate('')
+                    }}
+                    className="text-white hover:text-red-200 text-sm px-2"
+                    title="Clear date range"
+                  >
+                    ✕ Clear
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-3">
             <button
               onClick={async () => {
                 try {
@@ -177,11 +211,26 @@ export default function DashboardPage() {
                   // Import autoTable as a function for jsPDF v3 + autotable v5
                   const { default: autoTable } = await import('jspdf-autotable')
                   
-                  const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
-                const openTickets = tickets.filter(t => t.status === 'open')
-                const inProgressTickets = tickets.filter(t => t.status === 'in-progress')
-                const urgentTickets = tickets.filter(t => t.priority === 'urgent')
-                const thisWeekTickets = tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                  // Filter tickets by date range if provided
+                  const filterByDateRange = (ticketList: Ticket[]) => {
+                    if (!exportStartDate && !exportEndDate) return ticketList
+                    
+                    return ticketList.filter(t => {
+                      const ticketDate = new Date(t.createdAt)
+                      const startDate = exportStartDate ? new Date(exportStartDate) : new Date('1970-01-01')
+                      const endDate = exportEndDate ? new Date(exportEndDate) : new Date('2099-12-31')
+                      endDate.setHours(23, 59, 59, 999) // Include full end date
+                      
+                      return ticketDate >= startDate && ticketDate <= endDate
+                    })
+                  }
+                  
+                  const filteredTickets = filterByDateRange(tickets)
+                  const completedTickets = filteredTickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+                const openTickets = filteredTickets.filter(t => t.status === 'open')
+                const inProgressTickets = filteredTickets.filter(t => t.status === 'in-progress')
+                const urgentTickets = filteredTickets.filter(t => t.priority === 'urgent')
+                const thisWeekTickets = filteredTickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
                 
                 // Create PDF in landscape A4
                 const doc = new jsPDF({
@@ -198,7 +247,7 @@ export default function DashboardPage() {
                 doc.rect(0, 0, pageWidth, 35, 'F')
                 
                 // Completion Rate Box in header (top right)
-                const completionRate = tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0
+                const completionRate = filteredTickets.length > 0 ? Math.round((completedTickets.length / filteredTickets.length) * 100) : 0
                 doc.setFillColor(34, 197, 94) // Green
                 doc.roundedRect(pageWidth - 50, 7, 40, 22, 3, 3, 'F')
                 doc.setTextColor(255, 255, 255)
@@ -214,6 +263,14 @@ export default function DashboardPage() {
                 doc.setFontSize(24)
                 doc.setFont('helvetica', 'bold')
                 doc.text('IT TICKET SYSTEM - KPI REPORT', pageWidth / 2, 15, { align: 'center' })
+                
+                // Date Range Subtitle
+                doc.setFontSize(10)
+                doc.setFont('helvetica', 'normal')
+                const dateRangeText = exportStartDate || exportEndDate
+                  ? `Report Period: ${exportStartDate || 'Start'} to ${exportEndDate || 'End'}`
+                  : 'Report Period: All Time'
+                doc.text(dateRangeText, pageWidth / 2, 23, { align: 'center' })
                 
                 // Report details
                 doc.setFontSize(10)
@@ -232,7 +289,7 @@ export default function DashboardPage() {
                 
                 // Create bar chart data using colored boxes
                 const metrics = [
-                  { label: 'Total Tickets', value: tickets.length, color: [59, 130, 246] },
+                  { label: 'Total Tickets', value: filteredTickets.length, color: [59, 130, 246] },
                   { label: 'Open', value: openTickets.length, color: [239, 68, 68] },
                   { label: 'In Progress', value: inProgressTickets.length, color: [251, 191, 36] },
                   { label: 'Completed', value: completedTickets.length, color: [34, 197, 94] },
@@ -268,7 +325,7 @@ export default function DashboardPage() {
                   doc.text(valueText, chartStartX + 48, y + 6)
                   
                   // Percentage OUTSIDE the bar (black text)
-                  const percentage = tickets.length > 0 ? Math.round((metric.value / tickets.length) * 100) : 0
+                  const percentage = filteredTickets.length > 0 ? Math.round((metric.value / filteredTickets.length) * 100) : 0
                   doc.setTextColor(0, 0, 0)
                   doc.setFont('helvetica', 'normal')
                   doc.setFontSize(9)
@@ -381,11 +438,26 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 // Export KPI data to CSV with professional formatting
-                const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
-                const openTickets = tickets.filter(t => t.status === 'open')
-                const inProgressTickets = tickets.filter(t => t.status === 'in-progress')
-                const urgentTickets = tickets.filter(t => t.priority === 'urgent')
-                const thisWeekTickets = tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                // Filter tickets by date range if provided
+                const filterByDateRange = (ticketList: Ticket[]) => {
+                  if (!exportStartDate && !exportEndDate) return ticketList
+                  
+                  return ticketList.filter(t => {
+                    const ticketDate = new Date(t.createdAt)
+                    const startDate = exportStartDate ? new Date(exportStartDate) : new Date('1970-01-01')
+                    const endDate = exportEndDate ? new Date(exportEndDate) : new Date('2099-12-31')
+                    endDate.setHours(23, 59, 59, 999) // Include full end date
+                    
+                    return ticketDate >= startDate && ticketDate <= endDate
+                  })
+                }
+                
+                const filteredTickets = filterByDateRange(tickets)
+                const completedTickets = filteredTickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+                const openTickets = filteredTickets.filter(t => t.status === 'open')
+                const inProgressTickets = filteredTickets.filter(t => t.status === 'in-progress')
+                const urgentTickets = filteredTickets.filter(t => t.priority === 'urgent')
+                const thisWeekTickets = filteredTickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
                 
                 // Helper function to escape CSV values
                 const csvEscape = (value: any) => {
@@ -405,18 +477,22 @@ export default function DashboardPage() {
                 csv += `Report Generated:,${new Date().toLocaleString()}\n`
                 csv += `Generated By:,${user?.name || user?.email}\n`
                 csv += `Department:,${user?.department || 'All Departments'}\n`
+                const dateRangeText = exportStartDate || exportEndDate
+                  ? `${exportStartDate || 'Start'} to ${exportEndDate || 'End'}`
+                  : 'All Time'
+                csv += `Report Period:,${dateRangeText}\n`
                 csv += '\n'
                 
                 // Executive Summary Section
                 csv += 'EXECUTIVE SUMMARY\n'
                 csv += 'METRIC,VALUE,PERCENTAGE\n'
-                csv += `Total Tickets,${tickets.length},100%\n`
-                csv += `Open Tickets,${openTickets.length},${tickets.length > 0 ? Math.round((openTickets.length / tickets.length) * 100) : 0}%\n`
-                csv += `In Progress,${inProgressTickets.length},${tickets.length > 0 ? Math.round((inProgressTickets.length / tickets.length) * 100) : 0}%\n`
-                csv += `Completed,${completedTickets.length},${tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0}%\n`
-                csv += `Urgent Priority,${urgentTickets.length},${tickets.length > 0 ? Math.round((urgentTickets.length / tickets.length) * 100) : 0}%\n`
-                csv += `This Week (New),${thisWeekTickets.length},${tickets.length > 0 ? Math.round((thisWeekTickets.length / tickets.length) * 100) : 0}%\n`
-                csv += `Overall Completion Rate,${tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0}%,\n`
+                csv += `Total Tickets,${filteredTickets.length},100%\n`
+                csv += `Open Tickets,${openTickets.length},${filteredTickets.length > 0 ? Math.round((openTickets.length / filteredTickets.length) * 100) : 0}%\n`
+                csv += `In Progress,${inProgressTickets.length},${filteredTickets.length > 0 ? Math.round((inProgressTickets.length / filteredTickets.length) * 100) : 0}%\n`
+                csv += `Completed,${completedTickets.length},${filteredTickets.length > 0 ? Math.round((completedTickets.length / filteredTickets.length) * 100) : 0}%\n`
+                csv += `Urgent Priority,${urgentTickets.length},${filteredTickets.length > 0 ? Math.round((urgentTickets.length / filteredTickets.length) * 100) : 0}%\n`
+                csv += `This Week (New),${thisWeekTickets.length},${filteredTickets.length > 0 ? Math.round((thisWeekTickets.length / filteredTickets.length) * 100) : 0}%\n`
+                csv += `Overall Completion Rate,${filteredTickets.length > 0 ? Math.round((completedTickets.length / filteredTickets.length) * 100) : 0}%,\n`
                 csv += '\n'
                 
                 // Completed Tickets Detail Section
@@ -463,6 +539,7 @@ export default function DashboardPage() {
             >
               📥 Export CSV
             </button>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
