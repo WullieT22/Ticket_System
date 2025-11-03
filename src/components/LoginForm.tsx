@@ -63,6 +63,19 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Logo in top left corner */}
+      <div className="absolute top-8 left-8">
+        <img 
+          src="/logo.png" 
+          alt="Company Logo" 
+          className="h-16 w-auto"
+          onError={(e) => {
+            // Hide logo if image fails to load
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      </div>
+      
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           IT Ticket System
