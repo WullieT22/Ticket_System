@@ -121,6 +121,50 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* KPI Metrics - Only for Administrators */}
+      {user?.role === 'administrator' && (
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-lg shadow mb-6 text-white">
+          <h3 className="text-xl font-bold mb-4 flex items-center">
+            <span className="mr-2">📊</span>
+            KPI Dashboard
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-3xl font-bold">{tickets.length}</div>
+              <div className="text-sm opacity-90">Total Tickets</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'open').length}</div>
+              <div className="text-sm opacity-90">Open</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'in-progress').length}</div>
+              <div className="text-sm opacity-90">In Progress</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length}</div>
+              <div className="text-sm opacity-90">Completed</div>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{tickets.filter(t => t.priority === 'urgent').length}</div>
+              <div className="text-sm opacity-90">🔥 Urgent</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">{tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
+              <div className="text-sm opacity-90">📅 This Week</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="text-2xl font-bold">
+                {tickets.length > 0 ? Math.round((tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length / tickets.length) * 100) : 0}%
+              </div>
+              <div className="text-sm opacity-90">✅ Completion Rate</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Data Management Section - Only for Administrators */}
       {user?.role === 'administrator' && (
         <div className="bg-white p-6 rounded-lg shadow mb-6">
