@@ -124,33 +124,95 @@ export default function DashboardPage() {
       {/* KPI Metrics - Only for Administrators */}
       {user?.role === 'administrator' && (
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-lg shadow mb-6 text-white">
-          <h3 className="text-xl font-bold mb-4 flex items-center">
-            <span className="mr-2">📊</span>
-            KPI Dashboard
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold flex items-center">
+              <span className="mr-2">📊</span>
+              KPI Dashboard
+            </h3>
+            <button
+              onClick={() => {
+                // Export KPI data to CSV
+                const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+                const openTickets = tickets.filter(t => t.status === 'open')
+                const inProgressTickets = tickets.filter(t => t.status === 'in-progress')
+                const urgentTickets = tickets.filter(t => t.priority === 'urgent')
+                
+                let csv = 'KPI Report - ' + new Date().toLocaleDateString() + '\n\n'
+                csv += 'Metric,Value\n'
+                csv += `Total Tickets,${tickets.length}\n`
+                csv += `Open Tickets,${openTickets.length}\n`
+                csv += `In Progress,${inProgressTickets.length}\n`
+                csv += `Completed,${completedTickets.length}\n`
+                csv += `Urgent Tickets,${urgentTickets.length}\n`
+                csv += `This Week,${tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}\n`
+                csv += `Completion Rate,${tickets.length > 0 ? Math.round((completedTickets.length / tickets.length) * 100) : 0}%\n\n`
+                
+                csv += '\nCompleted Tickets Detail\n'
+                csv += 'Ticket ID,Title,Department,Priority,Reported By,Assigned To,Created,Completed\n'
+                completedTickets.forEach(t => {
+                  csv += `"${t.id}","${t.title.replace(/"/g, '""')}","${t.department}","${t.priority}","${t.reportedBy}","${t.assignedTechnician || 'Unassigned'}","${t.createdAt.toLocaleDateString()}","${t.completedAt ? t.completedAt.toLocaleDateString() : 'N/A'}"\n`
+                })
+                
+                const blob = new Blob([csv], { type: 'text/csv' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `kpi-report-${new Date().toISOString().split('T')[0]}.csv`
+                a.click()
+                URL.revokeObjectURL(url)
+              }}
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+            >
+              📥 Export KPI Report
+            </button>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-3xl font-bold">{tickets.length}</div>
               <div className="text-sm opacity-90">Total Tickets</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <button
+              onClick={() => {
+                setFilters({ ...filters, status: 'open' })
+              }}
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left"
+            >
               <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'open').length}</div>
               <div className="text-sm opacity-90">Open</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            </button>
+            <button
+              onClick={() => {
+                setFilters({ ...filters, status: 'in-progress' })
+              }}
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left"
+            >
               <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'in-progress').length}</div>
               <div className="text-sm opacity-90">In Progress</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            </button>
+            <button
+              onClick={() => {
+                const completedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed')
+                if (completedTickets.length > 0) {
+                  // Show completed tickets by filtering
+                  setFilters({ ...filters, status: 'resolved' })
+                }
+              }}
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left"
+            >
               <div className="text-3xl font-bold">{tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length}</div>
-              <div className="text-sm opacity-90">Completed</div>
-            </div>
+              <div className="text-sm opacity-90">Completed ✨</div>
+            </button>
           </div>
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <button
+              onClick={() => {
+                setFilters({ ...filters, priority: 'urgent' })
+              }}
+              className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/20 transition-all cursor-pointer text-left"
+            >
               <div className="text-2xl font-bold">{tickets.filter(t => t.priority === 'urgent').length}</div>
               <div className="text-sm opacity-90">🔥 Urgent</div>
-            </div>
+            </button>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-2xl font-bold">{tickets.filter(t => t.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</div>
               <div className="text-sm opacity-90">📅 This Week</div>
